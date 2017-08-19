@@ -36,12 +36,14 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	reader := bufio.NewReader(os.Stdin)
+	statTracker := challenge.NewTrialStatTracker()
 	trial := challenge.NewTrial(mode, *size, *quantity)
 	for {
 		q := trial.NextQuestion()
 		if q == nil {
 			break
 		}
+		startTime := time.Now()
 		fmt.Printf("\nHow much?  %d %s %d\n", q.Value1, q.Op, q.Value2)
 		var answer int
 		for {
@@ -64,5 +66,6 @@ func main() {
 		} else {
 			fmt.Println("Oh oh! Wrong answer.")
 		}
+		statTracker.RecordResult(*q, challenge.TrialResult{answer == q.Answer, time.Now().Sub(startTime)})
 	}
 }
