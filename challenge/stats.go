@@ -22,3 +22,16 @@ func NewTrialStatTracker() *TrialStatTracker {
 func (s *TrialStatTracker) RecordResult(q TrialQuestion, r TrialResult) {
 	s.results[q] = append(s.results[q], r)
 }
+
+func (s *TrialStatTracker) Summary() (quantity int, correct int, timeTaken time.Duration) {
+	for _, q := range s.results {
+		for _, r := range q {
+			quantity++
+			if r.Correct {
+				correct++
+			}
+			timeTaken += r.TimeTaken
+		}
+	}
+	return
+}

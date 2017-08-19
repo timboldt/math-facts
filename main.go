@@ -68,4 +68,6 @@ func main() {
 		}
 		statTracker.RecordResult(*q, challenge.TrialResult{answer == q.Answer, time.Now().Sub(startTime)})
 	}
+	totalQuestions, totalCorrect, totalDuraction := statTracker.Summary()
+	fmt.Printf("\nYou answered %d questions correctly out of %d.\nTime taken: %v.\n", totalCorrect, totalQuestions, totalDuraction)
 }
