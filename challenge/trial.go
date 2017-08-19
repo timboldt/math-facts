@@ -1,5 +1,7 @@
 package challenge
 
+import "math/rand"
+
 type Mode int
 
 const (
@@ -30,9 +32,25 @@ func (t Trial) Mode() Mode {
 }
 
 func (t *Trial) NextQuestion() *TrialQuestion {
-	if t.asked > t.quantity {
+	if t.asked >= t.quantity {
 		return nil
 	}
 	t.asked++
-	return &TrialQuestion{Value1: 9, Value2: 9, Op: "+", Answer: 18}
+
+	value1 := rand.Intn(t.size + 1)
+	value2 := rand.Intn(t.size + 1)
+	switch t.mode {
+	case AdditionMode:
+		return &TrialQuestion{Value1: value1, Value2: value2, Op: "+", Answer: value1 + value2}
+	case SubtractionMode:
+		// Avoid negative answers by always subtracting the smaller number from the bigger one.
+		if value2 > value1 {
+			value1, value2 = value2, value1
+		}
+		return &TrialQuestion{Value1: value1, Value2: value2, Op: "-", Answer: value1 - value2}
+	case MultiplicationMode:
+		return &TrialQuestion{Value1: value1, Value2: value2, Op: "*", Answer: value1 * value2}
+	default:
+		panic("Invalid mode.")
+	}
 }
