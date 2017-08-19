@@ -5,6 +5,9 @@ import (
 	"github.com/timboldt/math-facts/challenge"
 	"fmt"
 	"os"
+	"bufio"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -24,12 +27,35 @@ func main() {
 		fmt.Printf("Invalid mode '%s'", modeString)
 		os.Exit(1)
 	}
+
+	reader := bufio.NewReader(os.Stdin)
 	trial := challenge.NewTrial(mode, *size, *quantity)
 	for {
 		q := trial.NextQuestion()
 		if q == nil {
 			break
 		}
-		fmt.Printf("How much?  %d %s %d\n", q.Value1, q.Op, q.Value2)
+		fmt.Printf("\nHow much?  %d %s %d\n", q.Value1, q.Op, q.Value2)
+		var answer int
+		for {
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				//fmt.Println("%v %v", []byte(line), err)
+				fmt.Println("Please enter a number.")
+				continue
+			}
+			answer, err = strconv.Atoi(strings.Trim(line, "\r\n"))
+			if err != nil {
+				//fmt.Println(err)
+				fmt.Println("Please enter a number.")
+				continue
+			}
+			break
+		}
+		if answer == q.Answer {
+			fmt.Println("Correct!")
+		} else {
+			fmt.Println("Oh oh! Wrong answer.")
+		}
 	}
 }
