@@ -15,7 +15,7 @@ import (
 func main() {
 	modeString := flag.String("mode", "addition", "the type of flash card (addition, substraction, multiplication)")
 	size := flag.Int("size", 9, "the biggest numbers to use, e.g. '9' in addition mode will result in problems up to 9+9")
-	quantity := flag.Int("quantity", 20, "the quantity of (randomly-selected) problems to display")
+	quantity := flag.Int("quantity", 10, "the quantity of (randomly-selected) problems to display")
 	flag.Parse()
 
 	var mode challenge.Mode
@@ -69,5 +69,5 @@ func main() {
 		statTracker.RecordResult(*q, challenge.TrialResult{answer == q.Answer, time.Now().Sub(startTime)})
 	}
 	totalQuestions, totalCorrect, totalDuraction := statTracker.Summary()
-	fmt.Printf("\nYou answered %d questions correctly out of %d.\nTime taken: %v.\n", totalCorrect, totalQuestions, totalDuraction)
+	fmt.Printf("\nYou answered %d questions correctly out of %d.\nTime taken: %.1f seconds.\n", totalCorrect, totalQuestions, totalDuraction.Seconds())
 }
