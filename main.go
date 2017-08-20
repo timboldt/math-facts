@@ -43,14 +43,14 @@ func init() {
 
 func askQuestion(q *challenge.TrialQuestion, statTracker *challenge.TrialStatTracker) {
 	startTime := time.Now()
-	fmt.Printf("\nHow much?  %d %s %d\n", q.Value1, q.Op, q.Value2)
+	fmt.Printf("\nHow much?  %d %s %d\n", q.Value1, q.Op(), q.Value2)
 	answer := getAnswer()
-	if answer == q.Answer {
+	if answer == q.Answer() {
 		fmt.Println("Correct!")
 	} else {
 		fmt.Println("Oh oh! Wrong answer.")
 	}
-	statTracker.RecordResult(*q, challenge.TrialResult{answer == q.Answer, time.Now().Sub(startTime)})
+	statTracker.RecordResult(*q, challenge.TrialResult{answer == q.Answer(), time.Now().Sub(startTime)})
 }
 
 func getAnswer() int {
