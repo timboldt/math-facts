@@ -1,15 +1,15 @@
 package main
 
 import (
-	"flag"
-	"github.com/timboldt/math-facts/challenge"
-	"fmt"
-	"os"
 	"bufio"
+	"flag"
+	"fmt"
+	"github.com/timboldt/math-facts/challenge"
+	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
-	"math/rand"
 )
 
 var (
@@ -17,6 +17,7 @@ var (
 	mode       challenge.Mode
 	size       = flag.Int("size", 9, "the biggest numbers to use, e.g. '9' in addition mode will result in problems up to 9+9")
 	quantity   = flag.Int("quantity", 10, "the quantity of (randomly-selected) problems to display")
+	username   = flag.String("user", "default", "username for stats purposes")
 )
 
 func init() {
@@ -73,8 +74,25 @@ func getAnswer() int {
 	return answer
 }
 
+func recordStat(question challenge.TrialQuestion, result challenge.TrialResult) {
+	f, err := os.OpenFile(*username+"_stats.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	s := fmt.Sprintf("%s\t%d%s%d\t%v\t%.2f\n",
+		time.Now().UTC().Format(time.RFC3339),
+		question.Value1, question.Op, question.Value2,
+		result.Correct,
+		result.TimeTaken.Seconds())
+	if _, err = f.WriteString(s); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
-	statTracker := challenge.NewTrialStatTracker()
+	statTracker := challenge.NewTrialStatTracker(recordStat)
 	trial := challenge.NewTrial(mode, *size, *quantity)
 	for {
 		q := trial.NextQuestion()
@@ -86,4 +104,3 @@ func main() {
 	totalQuestions, totalCorrect, totalDuraction := statTracker.Summary()
 	fmt.Printf("\nYou answered %d questions correctly out of %d.\nTime taken: %.1f seconds.\n", totalCorrect, totalQuestions, totalDuraction.Seconds())
 }
-

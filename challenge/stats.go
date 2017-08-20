@@ -13,14 +13,19 @@ type resultList []TrialResult
 
 type TrialStatTracker struct {
 	results map[TrialQuestion]resultList
+	logger func(TrialQuestion, TrialResult)
 }
 
-func NewTrialStatTracker() *TrialStatTracker {
-	return &TrialStatTracker{results: make(map[TrialQuestion]resultList)}
+func NewTrialStatTracker(resultLogger func(TrialQuestion, TrialResult)) *TrialStatTracker {
+	return &TrialStatTracker{
+		results: make(map[TrialQuestion]resultList),
+		logger: resultLogger,
+	}
 }
 
 func (s *TrialStatTracker) RecordResult(q TrialQuestion, r TrialResult) {
 	s.results[q] = append(s.results[q], r)
+	s.logger(q, r)
 }
 
 func (s *TrialStatTracker) Summary() (quantity int, correct int, timeTaken time.Duration) {
