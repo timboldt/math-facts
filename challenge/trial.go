@@ -29,3 +29,7 @@ func (t *Trial) NextQuestion() *TrialQuestion {
 	t.asked++
 	return t.generator.NewQuestion()
 }
+
+func (t *Trial) BanQuestion(q *TrialQuestion) {
+	t.generator.BanQuestion(q)
+}

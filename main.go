@@ -94,6 +94,11 @@ func recordStat(question challenge.TrialQuestion, result challenge.TrialResult) 
 func main() {
 	statTracker := challenge.NewTrialStatTracker(recordStat)
 	trial := challenge.NewTrial(mode, *size, *quantity)
+	// TODO: Make this automatically ban anything the user finds easy. For now, just ban zeroes.
+	for i := 0; i < *size; i++ {
+		trial.BanQuestion(&challenge.TrialQuestion{Value1: 0, Value2: i, Mode: mode})
+		trial.BanQuestion(&challenge.TrialQuestion{Value1: i, Value2: 0, Mode: mode})
+	}
 	for {
 		q := trial.NextQuestion()
 		if q == nil {
