@@ -43,8 +43,7 @@ func init() {
 
 func askQuestion(q *challenge.TrialQuestion, statTracker *challenge.TrialStatTracker) {
 	startTime := time.Now()
-	fmt.Printf("\nHow much?  %d %s %d\n", q.Value1, q.Op(), q.Value2)
-	answer := getAnswer()
+	answer := getAnswer(q)
 	if answer == q.Answer() {
 		fmt.Println("Correct!")
 	} else {
@@ -53,10 +52,12 @@ func askQuestion(q *challenge.TrialQuestion, statTracker *challenge.TrialStatTra
 	statTracker.RecordResult(*q, challenge.TrialResult{answer == q.Answer(), time.Now().Sub(startTime)})
 }
 
-func getAnswer() int {
+func getAnswer(q *challenge.TrialQuestion) int {
 	var answer int
 	reader := bufio.NewReader(os.Stdin)
+	fmt.Println()
 	for {
+		fmt.Printf("How much?  %d %s %d\n", q.Value1, q.Op(), q.Value2)
 		line, err := reader.ReadString('\n')
 		if err != nil {
 			//fmt.Println("%v %v", []byte(line), err)
