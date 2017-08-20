@@ -83,7 +83,7 @@ func recordStat(question challenge.TrialQuestion, result challenge.TrialResult) 
 
 	s := fmt.Sprintf("%s\t%d%s%d\t%v\t%.2f\n",
 		time.Now().UTC().Format(time.RFC3339),
-		question.Value1, question.Op, question.Value2,
+		question.Value1, question.Op(), question.Value2,
 		result.Correct,
 		result.TimeTaken.Seconds())
 	if _, err = f.WriteString(s); err != nil {
