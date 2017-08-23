@@ -10,12 +10,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"regexp"
 )
 
 var (
 	modeString = flag.String("mode", "addition", "the type of flash card (addition, substraction, multiplication)")
 	mode       challenge.Mode
-	size       = flag.Int("size", 9, "the biggest numbers to use, e.g. '9' in addition mode will result in problems up to 9+9")
+	sizeFlag   = flag.Int("size", 9, "the biggest numbers to use, e.g. '9' in addition mode will result in problems up to 9+9")
+	maxNum     int
 	quantity   = flag.Int("quantity", 10, "the quantity of (randomly-selected) problems to display")
 	username   = flag.String("user", "default", "username for stats purposes")
 )
@@ -37,6 +39,7 @@ func init() {
 		fmt.Printf("Invalid mode '%s'", modeString)
 		os.Exit(1)
 	}
+	maxNum = *sizeFlag + 1
 
 	rand.Seed(time.Now().UTC().UnixNano())
 }
@@ -92,13 +95,79 @@ func recordStat(question challenge.TrialQuestion, result challenge.TrialResult) 
 	}
 }
 
+func processStats(trial *challenge.Trial) {
+	f, err := os.Open(*username + "_stats.txt")
+	if err != nil {
+		fmt.Println("Unable to read existing stats file. Ignoring error.")
+		return
+	}
+	defer f.Close()
+
+	r := bufio.NewReader(f)
+	re := regexp.MustCompile(`\t(\d+)([\+\-\*])(\d+)\t(true|false)\t(\d+)`)
+	for {
+		s, err := r.ReadString('\n')
+		if err != nil {
+			break
+		}
+		m := re.FindStringSubmatch(s)
+		if len(m) < 6 {
+			if len(s) > 5 {
+				fmt.Printf("Invalid stat file string: %s", s)
+			}
+			continue
+		}
+		val1, err := strconv.Atoi(m[1])
+		if err != nil {
+			fmt.Printf("Invalid operand %s\n", m[1])
+			continue
+		}
+		val2, err := strconv.Atoi(m[3])
+		if err != nil {
+			fmt.Printf("Invalid operand %s\n", m[3])
+			continue
+		}
+		var mode challenge.Mode
+		switch m[2] {
+		case "+":
+			mode = challenge.AdditionMode
+		case "-":
+			mode = challenge.SubtractionMode
+		case "*":
+			mode = challenge.MultiplicationMode
+		default:
+			fmt.Printf("Invalid operator %s\n", m[2])
+			continue
+		}
+		correct, err := strconv.ParseBool(m[4])
+		if err != nil {
+			fmt.Printf("Invalid bool %s\n", m[4])
+			continue
+		}
+		seconds, err := strconv.Atoi(m[5])
+		if err != nil {
+			fmt.Printf("Invalid time %s\n", m[5])
+			continue
+		}
+
+		if correct && seconds < 8 && mode == trial.Mode() {
+			trial.BanQuestion(&challenge.TrialQuestion{Value1: val1, Value2: val2, Mode: mode})
+		}
+	}
+}
+
 func main() {
 	statTracker := challenge.NewTrialStatTracker(recordStat)
-	trial := challenge.NewTrial(mode, *size, *quantity)
-	// TODO: Make this automatically ban anything the user finds easy. For now, just ban zeroes.
-	for i := 0; i < *size; i++ {
-		trial.BanQuestion(&challenge.TrialQuestion{Value1: 0, Value2: i, Mode: mode})
-		trial.BanQuestion(&challenge.TrialQuestion{Value1: i, Value2: 0, Mode: mode})
+	trial := challenge.NewTrial(mode, maxNum, *quantity)
+	// Ban any questions that were too easy.
+	processStats(trial)
+	// Ban negative answers.
+	if trial.Mode() == challenge.SubtractionMode {
+		for i := 0; i <= maxNum; i++ {
+			for j := i + 1; j <= maxNum; j++ {
+				trial.BanQuestion(&challenge.TrialQuestion{Value1: i, Value2: j, Mode: mode})
+			}
+		}
 	}
 	for {
 		q := trial.NextQuestion()

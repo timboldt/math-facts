@@ -61,10 +61,12 @@ func (g *QuestionGenerator) NewQuestion() *TrialQuestion {
 
 		value1 := g.seq[g.next] / g.size
 		value2 := g.seq[g.next] % g.size
+		/***
 		// Avoid negative answers by always subtracting the smaller number from the bigger one.
 		if g.mode == SubtractionMode && value2 > value1 {
 			value1, value2 = value2, value1
 		}
+		***/
 		g.next++
 
 		q := &TrialQuestion{Value1: value1, Value2: value2, Mode: g.mode}
