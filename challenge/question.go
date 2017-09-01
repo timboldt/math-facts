@@ -79,3 +79,7 @@ func (g *QuestionGenerator) NewQuestion() *TrialQuestion {
 func (g *QuestionGenerator) BanQuestion(q *TrialQuestion) {
 	g.banned[*q] = true
 }
+
+func (g *QuestionGenerator) NumBanned() int {
+	return len(g.banned)
+}

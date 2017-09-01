@@ -154,6 +154,7 @@ func processStats(trial *challenge.Trial) {
 			trial.BanQuestion(&challenge.TrialQuestion{Value1: val1, Value2: val2, Mode: mode})
 		}
 	}
+	fmt.Printf("Known questions: %d (%d%%)\n", trial.NumBannedQuestions(), 100*trial.NumBannedQuestions()/(maxNum+1)/(maxNum+1))
 }
 
 func main() {

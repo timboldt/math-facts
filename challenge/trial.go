@@ -33,3 +33,7 @@ func (t *Trial) NextQuestion() *TrialQuestion {
 func (t *Trial) BanQuestion(q *TrialQuestion) {
 	t.generator.BanQuestion(q)
 }
+
+func (t *Trial) NumBannedQuestions() int {
+	return t.generator.NumBanned()
+}
