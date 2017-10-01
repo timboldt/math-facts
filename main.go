@@ -17,7 +17,6 @@ var (
 	modeString = flag.String("mode", "addition", "the type of flash card (addition, substraction, multiplication)")
 	mode       challenge.Mode
 	sizeFlag   = flag.Int("size", 9, "the biggest numbers to use, e.g. '9' in addition mode will result in problems up to 9+9")
-	maxNum     int
 	quantity   = flag.Int("quantity", 10, "the quantity of (randomly-selected) problems to display")
 	username   = flag.String("user", "default", "username for stats purposes")
 )
@@ -39,7 +38,6 @@ func init() {
 		fmt.Printf("Invalid mode '%s'", modeString)
 		os.Exit(1)
 	}
-	maxNum = *sizeFlag + 1
 
 	rand.Seed(time.Now().UTC().UnixNano())
 }
@@ -158,13 +156,13 @@ func processStats(trial *challenge.Trial) {
 
 func main() {
 	statTracker := challenge.NewTrialStatTracker(recordStat)
-	trial := challenge.NewTrial(mode, maxNum, *quantity)
+	trial := challenge.NewTrial(mode, *sizeFlag, *quantity)
 	// Exclude any questions that were too easy.
 	processStats(trial)
 	// Exclude negative answers.
 	if trial.Mode() == challenge.SubtractionMode {
-		for i := 0; i <= maxNum; i++ {
-			for j := i + 1; j <= maxNum; j++ {
+		for i := 0; i <= *sizeFlag; i++ {
+			for j := i + 1; j <= *sizeFlag; j++ {
 				// TODO: It would be useful to distinguish between questions that were learned vs ones that were excluded for other reasons (e.g. negatives).
 				trial.ExcludeLearnedQuestion(&challenge.TrialQuestion{Value1: i, Value2: j, Mode: mode})
 			}
