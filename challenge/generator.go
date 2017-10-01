@@ -2,8 +2,6 @@ package challenge
 
 import (
 	"math/rand"
-	"fmt"
-	"os"
 )
 
 type QuestionGenerator struct {
@@ -15,11 +13,23 @@ type QuestionGenerator struct {
 }
 
 func NewGenerator(mode Mode, size int) *QuestionGenerator {
-	if size > 30 {
-		fmt.Println("Maximum size is 30.")
-		os.Exit(1)
+	switch mode {
+	case AdditionMode:
+	case SubtractionMode:
+	case MultiplicationMode:
+		break
+	default:
+		panic("Invalid mode.")
 	}
-	return &QuestionGenerator{mode: mode, size: size, seq: rand.Perm(size * size), banned: make(map[TrialQuestion]bool)}
+	if size > 30 {
+		panic("Maximum size is 30.")
+	}
+	if size < 1 {
+		panic("Minimum size is 1.")
+	}
+	// Need to account for zeroes.
+	totalSize := (size + 1) * (size + 1)
+	return &QuestionGenerator{mode: mode, size: size, seq: rand.Perm(totalSize), banned: make(map[TrialQuestion]bool)}
 }
 
 func (g *QuestionGenerator) NewQuestion() *TrialQuestion {
@@ -30,12 +40,6 @@ func (g *QuestionGenerator) NewQuestion() *TrialQuestion {
 
 		value1 := g.seq[g.next] / g.size
 		value2 := g.seq[g.next] % g.size
-		/***
-		// Avoid negative answers by always subtracting the smaller number from the bigger one.
-		if g.mode == SubtractionMode && value2 > value1 {
-			value1, value2 = value2, value1
-		}
-		***/
 		g.next++
 
 		q := &TrialQuestion{Value1: value1, Value2: value2, Mode: g.mode}
@@ -45,8 +49,16 @@ func (g *QuestionGenerator) NewQuestion() *TrialQuestion {
 	}
 }
 
+func (g *QuestionGenerator) NumQuestions() int {
+	return len(g.seq)
+}
+
 func (g *QuestionGenerator) BanQuestion(q *TrialQuestion) {
-	g.banned[*q] = true
+	if q.Value1 > 0 && q.Value1 <= g.size &&
+		q.Value2 > 0 && q.Value2 <= g.size &&
+		q.Mode == g.mode {
+		g.banned[*q] = true
+	}
 }
 
 func (g *QuestionGenerator) NumBanned() int {
