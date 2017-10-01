@@ -160,15 +160,20 @@ func main() {
 	// Exclude any questions that were too easy.
 	processStats(trial)
 	// Exclude negative answers.
+	skipped := 0
 	if trial.Mode() == challenge.SubtractionMode {
 		for i := 0; i <= *sizeFlag; i++ {
 			for j := i + 1; j <= *sizeFlag; j++ {
-				// TODO: It would be useful to distinguish between questions that were learned vs ones that were excluded for other reasons (e.g. negatives).
+				// TODO: It would be useful if the generator distinguished between questions that were learned vs ones
+				// that were excluded for other reasons (e.g. negatives). This would eliminate all the extra "skipped" logic.
 				trial.ExcludeLearnedQuestion(&challenge.TrialQuestion{Value1: i, Value2: j, Mode: mode})
+				skipped++
 			}
 		}
 	}
-	fmt.Printf("Known questions: %d (%d%%)\n", trial.NumLearnedQuestions(), 100*trial.NumLearnedQuestions()/trial.NumQuestions())
+	learned := trial.NumLearnedQuestions() - skipped
+	total := trial.NumQuestions() - skipped
+	fmt.Printf("Known questions: %d (%d%%)\n", learned, 100*learned/total)
 	for {
 		q := trial.NextQuestion()
 		if q == nil {
