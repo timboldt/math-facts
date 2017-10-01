@@ -5,11 +5,11 @@ import (
 )
 
 type QuestionGenerator struct {
-	mode   Mode
-	size   int
-	seq    []int
-	next   int
-	banned map[TrialQuestion]bool
+	mode    Mode
+	size    int
+	seq     []int
+	next    int
+	learned map[TrialQuestion]bool
 }
 
 func NewGenerator(mode Mode, size int) *QuestionGenerator {
@@ -29,7 +29,7 @@ func NewGenerator(mode Mode, size int) *QuestionGenerator {
 	}
 	// Need to account for zeroes.
 	totalSize := (size + 1) * (size + 1)
-	return &QuestionGenerator{mode: mode, size: size, seq: rand.Perm(totalSize), banned: make(map[TrialQuestion]bool)}
+	return &QuestionGenerator{mode: mode, size: size, seq: rand.Perm(totalSize), learned: make(map[TrialQuestion]bool)}
 }
 
 func (g *QuestionGenerator) NewQuestion() *TrialQuestion {
@@ -38,12 +38,12 @@ func (g *QuestionGenerator) NewQuestion() *TrialQuestion {
 			return nil
 		}
 
-		value1 := g.seq[g.next] / g.size
-		value2 := g.seq[g.next] % g.size
+		value1 := g.seq[g.next] / (g.size + 1)
+		value2 := g.seq[g.next] % (g.size + 1)
 		g.next++
 
 		q := &TrialQuestion{Value1: value1, Value2: value2, Mode: g.mode}
-		if !g.banned[*q] {
+		if !g.learned[*q] {
 			return q
 		}
 	}
@@ -53,14 +53,14 @@ func (g *QuestionGenerator) NumQuestions() int {
 	return len(g.seq)
 }
 
-func (g *QuestionGenerator) BanQuestion(q *TrialQuestion) {
-	if q.Value1 > 0 && q.Value1 <= g.size &&
-		q.Value2 > 0 && q.Value2 <= g.size &&
+func (g *QuestionGenerator) ExcludeLearnedQuestion(q *TrialQuestion) {
+	if q.Value1 >= 0 && q.Value1 <= g.size &&
+		q.Value2 >= 0 && q.Value2 <= g.size &&
 		q.Mode == g.mode {
-		g.banned[*q] = true
+		g.learned[*q] = true
 	}
 }
 
-func (g *QuestionGenerator) NumBanned() int {
-	return len(g.banned)
+func (g *QuestionGenerator) NumLearned() int {
+	return len(g.learned)
 }

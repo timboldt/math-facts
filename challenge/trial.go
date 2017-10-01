@@ -30,10 +30,14 @@ func (t *Trial) NextQuestion() *TrialQuestion {
 	return t.generator.NewQuestion()
 }
 
-func (t *Trial) BanQuestion(q *TrialQuestion) {
-	t.generator.BanQuestion(q)
+func (t *Trial) ExcludeLearnedQuestion(q *TrialQuestion) {
+	t.generator.ExcludeLearnedQuestion(q)
 }
 
-func (t *Trial) NumBannedQuestions() int {
-	return t.generator.NumBanned()
+func (t *Trial) NumQuestions() int {
+	return t.generator.NumQuestions()
+}
+
+func (t *Trial) NumLearnedQuestions() int {
+	return t.generator.NumLearned()
 }

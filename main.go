@@ -151,7 +151,7 @@ func processStats(trial *challenge.Trial) {
 		}
 
 		if correct && seconds < 8 && mode == trial.Mode() {
-			trial.BanQuestion(&challenge.TrialQuestion{Value1: val1, Value2: val2, Mode: mode})
+			trial.ExcludeLearnedQuestion(&challenge.TrialQuestion{Value1: val1, Value2: val2, Mode: mode})
 		}
 	}
 }
@@ -159,17 +159,18 @@ func processStats(trial *challenge.Trial) {
 func main() {
 	statTracker := challenge.NewTrialStatTracker(recordStat)
 	trial := challenge.NewTrial(mode, maxNum, *quantity)
-	// Ban any questions that were too easy.
+	// Exclude any questions that were too easy.
 	processStats(trial)
-	// Ban negative answers.
+	// Exclude negative answers.
 	if trial.Mode() == challenge.SubtractionMode {
 		for i := 0; i <= maxNum; i++ {
 			for j := i + 1; j <= maxNum; j++ {
-				trial.BanQuestion(&challenge.TrialQuestion{Value1: i, Value2: j, Mode: mode})
+				// TODO: It would be useful to distinguish between questions that were learned vs ones that were excluded for other reasons (e.g. negatives).
+				trial.ExcludeLearnedQuestion(&challenge.TrialQuestion{Value1: i, Value2: j, Mode: mode})
 			}
 		}
 	}
-	fmt.Printf("Known questions: %d (%d%%)\n", trial.NumBannedQuestions(), 100*trial.NumBannedQuestions()/(maxNum+1)/(maxNum+1))
+	fmt.Printf("Known questions: %d (%d%%)\n", trial.NumLearnedQuestions(), 100*trial.NumLearnedQuestions()/trial.NumQuestions())
 	for {
 		q := trial.NextQuestion()
 		if q == nil {
