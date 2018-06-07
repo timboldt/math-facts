@@ -25,14 +25,11 @@ func init() {
 	flag.Parse()
 
 	switch *modeString {
-	case "addition":
-	case "add":
+	case "addition", "add":
 		mode = challenge.AdditionMode
-	case "subtraction":
-	case "sub":
+	case "subtraction", "sub":
 		mode = challenge.SubtractionMode
-	case "multiplication":
-	case "mult":
+	case "multiplication", "mult":
 		mode = challenge.MultiplicationMode
 	default:
 		fmt.Printf("Invalid mode '%s'", modeString)
