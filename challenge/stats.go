@@ -13,13 +13,13 @@ type resultList []TrialResult
 
 type TrialStatTracker struct {
 	results map[TrialQuestion]resultList
-	logger func(TrialQuestion, TrialResult)
+	logger  func(TrialQuestion, TrialResult)
 }
 
 func NewTrialStatTracker(resultLogger func(TrialQuestion, TrialResult)) *TrialStatTracker {
 	return &TrialStatTracker{
 		results: make(map[TrialQuestion]resultList),
-		logger: resultLogger,
+		logger:  resultLogger,
 	}
 }
 

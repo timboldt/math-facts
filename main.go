@@ -7,10 +7,10 @@ import (
 	"github.com/timboldt/math-facts/challenge"
 	"math/rand"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"regexp"
 )
 
 var (

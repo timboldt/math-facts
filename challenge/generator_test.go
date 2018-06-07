@@ -98,7 +98,7 @@ var _ = Describe("QuestionGenerator", func() {
 				for m := range []Mode{AdditionMode, SubtractionMode, MultiplicationMode} {
 					g := NewGenerator(Mode(m), s)
 					n := 0
-					for ; ; {
+					for {
 						q := g.NewQuestion()
 						if q == nil {
 							break

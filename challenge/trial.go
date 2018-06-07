@@ -3,7 +3,7 @@ package challenge
 type Mode int
 
 const (
-	AdditionMode       = iota
+	AdditionMode = iota
 	SubtractionMode
 	MultiplicationMode
 )
