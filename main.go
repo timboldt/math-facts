@@ -4,13 +4,14 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/timboldt/math-facts/challenge"
 	"math/rand"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/timboldt/math-facts/challenge"
 )
 
 var (
@@ -32,7 +33,7 @@ func init() {
 	case "multiplication", "mult":
 		mode = challenge.MultiplicationMode
 	default:
-		fmt.Printf("Invalid mode '%s'", modeString)
+		fmt.Printf("Invalid mode %q\n", *modeString)
 		os.Exit(1)
 	}
 
@@ -47,7 +48,10 @@ func askQuestion(q *challenge.TrialQuestion, statTracker *challenge.TrialStatTra
 	} else {
 		fmt.Println("Oh oh! Wrong answer.")
 	}
-	statTracker.RecordResult(*q, challenge.TrialResult{answer == q.Answer(), time.Now().Sub(startTime)})
+	statTracker.RecordResult(*q, challenge.TrialResult{
+		Correct:   answer == q.Answer(),
+		TimeTaken: time.Since(startTime),
+	})
 }
 
 func getAnswer(q *challenge.TrialQuestion) int {
@@ -108,7 +112,7 @@ func processStats(trial *challenge.Trial) {
 		m := re.FindStringSubmatch(s)
 		if len(m) < 6 {
 			if len(s) > 5 {
-				fmt.Printf("Invalid stat file string: %s", s)
+				fmt.Printf("Invalid stat file string: %s\n", s)
 			}
 			continue
 		}
